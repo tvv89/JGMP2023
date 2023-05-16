@@ -1,8 +1,10 @@
 package org.example;
 
-import com.google.common.cache.*;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalListener;
 import lombok.NonNull;
-import org.apache.log4j.Logger;
 import org.example.entity.CacheEntry;
 import org.example.service.CacheService;
 import org.example.service.CustomRemovalListener;
@@ -12,7 +14,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
-    private static final Logger logger = Logger.getLogger(Main.class);
     public static void main(String[] args) {
 
         //Simple Java (Strategy: LFU);
@@ -55,7 +56,10 @@ public class Main {
             }
         };
         LoadingCache<String, String> cache;
-        RemovalListener<String, String> rl = notification -> logger.info(notification.getKey() + "->" + notification.getValue());
+        RemovalListener<String, String> rl = notification ->
+                System.out.println(notification.getKey() +
+                        "->" + notification.getValue() +
+                        "---->"+ notification.getCause());
         cache = CacheBuilder.newBuilder()
                 .maximumSize(100000)
                 .expireAfterWrite(5, TimeUnit.SECONDS)
@@ -67,6 +71,6 @@ public class Main {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        cacheService.put("key2", "value2");
+        cache.put("key2", "value2");
     }
 }
